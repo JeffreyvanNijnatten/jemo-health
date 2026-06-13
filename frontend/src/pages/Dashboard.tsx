@@ -59,7 +59,10 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange, appName, onAppNameChange, formatDate, formatDateTime }: Props) {
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [activeId, setActiveId] = useState<number | null>(null)
+  const [activeId, setActiveId] = useState<number | null>(() => {
+    const saved = localStorage.getItem('jemo_active_profile')
+    return saved ? parseInt(saved, 10) : null
+  })
   const [measurements, setMeasurements] = useState<Measurement[]>([])
   const [goals, setGoals] = useState<GoalMap>({})
   const [loading, setLoading] = useState(true)
@@ -162,10 +165,17 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
   const loadProfiles = useCallback(async () => {
     const ps = await api.profiles.list()
     setProfiles(ps)
-    if (ps.length > 0 && !activeId) setActiveId(ps[0].slot_id)
+    if (ps.length > 0) {
+      setActiveId(prev => {
+        if (prev && ps.find(p => p.slot_id === prev)) return prev
+        const id = ps[0].slot_id
+        localStorage.setItem('jemo_active_profile', String(id))
+        return id
+      })
+    }
     const unnamed = ps.find(p => !p.name)
     if (unnamed) setUnnamedProfile(unnamed)
-  }, [activeId])
+  }, [])
 
   const loadMeasurements = useCallback(async (id: number) => {
     const ms = await api.measurements.list(id)
@@ -246,7 +256,13 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
             <ProfileSwitcher
               profiles={profiles}
               activeId={activeId!}
-              onSwitch={id => { setActiveId(id); setEditingProfile(null) }}
+              onSwitch={id => {
+                setActiveId(id)
+                localStorage.setItem('jemo_active_profile', String(id))
+                setEditingProfile(null)
+                const p = profiles.find(pr => pr.slot_id === id)
+                if (p && !p.name) setUnnamedProfile(p)
+              }}
               onEditProfile={p => setEditingProfile(p)}
             />
           </div>
@@ -812,8 +828,12 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
         <NamePromptModal
           profile={editingProfile ?? unnamedProfile!}
           onNamed={updated => {
-            setProfiles(ps => ps.map(p => p.slot_id === updated.slot_id ? updated : p))
-            if (unnamedProfile?.slot_id === updated.slot_id) setUnnamedProfile(null)
+            const updatedProfiles = profiles.map(p => p.slot_id === updated.slot_id ? updated : p)
+            setProfiles(updatedProfiles)
+            if (unnamedProfile?.slot_id === updated.slot_id) {
+              const nextUnnamed = updatedProfiles.find(p => !p.name)
+              setUnnamedProfile(nextUnnamed ?? null)
+            }
             setEditingProfile(null)
           }}
           onClose={editingProfile ? () => setEditingProfile(null) : undefined}
