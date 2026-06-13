@@ -163,7 +163,7 @@ export function MetricCard({ label, value, unit, decimals = 1, goal, goalUnit, h
             onChange={e => setGoalInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') saveGoal(); if (e.key === 'Escape') setEditingGoal(false) }}
             placeholder="Target…"
-            className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-[#e8e2db] bg-[#faf6f1] text-[#222] outline-none focus:border-[#c094e4]"
+            className="flex-1 min-w-0 px-3 py-1.5 text-xs rounded-lg border border-[#e8e2db] bg-[#faf6f1] text-[#222] outline-none focus:border-[#c094e4]"
           />
           <button onClick={saveGoal} disabled={saving} className="p-1.5 rounded-lg bg-[#222] text-white disabled:opacity-40">
             <Check size={12} />
