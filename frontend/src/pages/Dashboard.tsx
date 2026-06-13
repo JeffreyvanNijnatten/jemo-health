@@ -307,8 +307,8 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
             <div className="flex-1">
               <p className="text-sm text-[#9a9490] mb-1">{getGreeting()},</p>
-              <div className="mb-4">
-                <h2 className="font-serif text-3xl font-medium text-[#222] mb-1">
+              <div className="flex items-baseline gap-3 flex-wrap mb-4">
+                <h2 className="font-serif text-3xl font-medium text-[#222]">
                   {activeProfile?.name || 'friend'}
                 </h2>
                 {currentHealthScore != null && (
@@ -327,7 +327,6 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                         {scoreDelta > 0 ? '+' : ''}{scoreDelta.toFixed(1)}
                       </span>
                     )}
-                    <span className="text-xs text-[#b8b0a8]">health score</span>
                   </div>
                 )}
               </div>
