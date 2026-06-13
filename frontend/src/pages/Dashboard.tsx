@@ -37,10 +37,12 @@ const BODY_TYPE_LABEL: Record<number, string> = {
 
 function getGreeting(): string {
   const h = new Date().getHours()
-  if (h < 5) return 'Good night'
+  if (h < 1) return 'Good night'
+  if (h < 5) return 'Sleep if important to stay healty!'
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 22) return 'Good afternoon'
+  return 'Good night'
 }
 
 function getAge(dob: string | null): number | null {
@@ -517,6 +519,25 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                 />
                 <MetricCard
                   index={1}
+                  label="Water"
+                  value={displayed?.water_pct ?? null}
+                  unit="%"
+                  decimals={1}
+                  healthRange={displayed?.water_pct != null
+                    ? waterPctRange(displayed.water_pct, activeProfile?.gender)
+                    : null}
+                  goal={goals.water_pct}
+                  goalUnit="%"
+                  metric="water_pct"
+                  profileId={activeId!}
+                  onGoalChanged={() => loadGoals(activeId!)}
+                  delta={displayed?.water_pct != null && prev?.water_pct != null
+                    ? displayed.water_pct - prev.water_pct
+                    : null}
+                  deltaGoodDirection="up"
+                />
+                <MetricCard
+                  index={2}
                   className="sm:col-span-2"
                   label="Resting calories"
                   value={displayed?.resting_calories ?? null}
@@ -534,25 +555,6 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                     ? displayed.resting_calories - prev.resting_calories
                     : null}
                   deltaGoodDirection="neutral"
-                />
-                <MetricCard
-                  index={3}
-                  label="Water"
-                  value={displayed?.water_pct ?? null}
-                  unit="%"
-                  decimals={1}
-                  healthRange={displayed?.water_pct != null
-                    ? waterPctRange(displayed.water_pct, activeProfile?.gender)
-                    : null}
-                  goal={goals.water_pct}
-                  goalUnit="%"
-                  metric="water_pct"
-                  profileId={activeId!}
-                  onGoalChanged={() => loadGoals(activeId!)}
-                  delta={displayed?.water_pct != null && prev?.water_pct != null
-                    ? displayed.water_pct - prev.water_pct
-                    : null}
-                  deltaGoodDirection="up"
                 />
               </div>
               <TrendChart
@@ -742,6 +744,7 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                       <>
                         <MetricCard
                           label="Total muscle"
+                          className="row-span-2"
                           value={weightValue(displayed?.muscle_total_kg ?? null, unitSystem)}
                           unit={weightUnit(unitSystem)}
                           decimals={1}
@@ -756,7 +759,6 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                             : null}
                           deltaGoodDirection="up"
                         />
-                        <div />
                         <MetricCard
                           label="Trunk muscle"
                           value={weightValue(displayed?.muscle_trunk_kg ?? null, unitSystem)}
