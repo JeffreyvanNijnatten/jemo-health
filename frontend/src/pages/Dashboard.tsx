@@ -39,7 +39,7 @@ const BODY_TYPE_LABEL: Record<number, string> = {
 function getGreeting(): string {
   const h = new Date().getHours()
   if (h < 1) return 'Good night'
-  if (h < 5) return 'Sleep is important to stay healty!'
+  if (h < 5) return 'Sleep is important to stay healty'
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   if (h < 22) return 'Good evening'
