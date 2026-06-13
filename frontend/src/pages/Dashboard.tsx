@@ -538,7 +538,7 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                 />
                 <MetricCard
                   index={2}
-                  className="sm:col-span-2"
+                  className="col-span-2"
                   label="Resting calories"
                   value={displayed?.resting_calories ?? null}
                   unit=" kcal"
