@@ -11,7 +11,7 @@ interface Props {
 
 export function ProfileSwitcher({ profiles, activeId, onSwitch, onEditProfile }: Props) {
   return (
-    <div className="flex items-center gap-1 flex-nowrap">
+    <div className="flex items-center gap-0.5 flex-nowrap">
       {profiles.map((p) => {
         const isActive = p.slot_id === activeId
         const displayName = p.name || `Profile ${p.slot_id}`
