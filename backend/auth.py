@@ -26,7 +26,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if request.url.path == "/health":
             return await call_next(request)
 
-        client_ip = request.client.host if request.client else "127.0.0.1"
+        # Prefer X-Forwarded-For / X-Real-IP set by reverse proxies (e.g. NPM)
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        real_ip = request.headers.get("X-Real-IP")
+        if forwarded_for:
+            client_ip = forwarded_for.split(",")[0].strip()
+        elif real_ip:
+            client_ip = real_ip.strip()
+        else:
+            client_ip = request.client.host if request.client else "127.0.0.1"
+
         if _is_local(client_ip):
             return await call_next(request)
 
