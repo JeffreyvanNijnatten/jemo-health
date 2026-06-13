@@ -21,6 +21,7 @@ interface Props {
   delta?: number | null
   deltaUnit?: string
   deltaGoodDirection?: 'up' | 'down' | 'neutral'
+  className?: string
 }
 
 function AnimatedNumber({ value, decimals = 1 }: { value: number; decimals: number }) {
@@ -41,7 +42,7 @@ function AnimatedNumber({ value, decimals = 1 }: { value: number; decimals: numb
   return <>{display.toFixed(decimals)}</>
 }
 
-export function MetricCard({ label, value, unit, decimals = 1, goal, goalUnit, healthRange, metric, profileId, onGoalChanged, size = 'default', index = 0, prefix, delta, deltaUnit, deltaGoodDirection }: Props) {
+export function MetricCard({ label, value, unit, decimals = 1, goal, goalUnit, healthRange, metric, profileId, onGoalChanged, size = 'default', index = 0, prefix, delta, deltaUnit, deltaGoodDirection, className }: Props) {
   const [editingGoal, setEditingGoal] = useState(false)
   const [goalInput, setGoalInput] = useState(goal?.toString() ?? '')
   const [saving, setSaving] = useState(false)
@@ -79,7 +80,7 @@ export function MetricCard({ label, value, unit, decimals = 1, goal, goalUnit, h
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.06 }}
-      className="bg-white rounded-2xl p-5 border border-[#f0ebe4] flex flex-col gap-3"
+      className={`bg-white rounded-2xl p-5 border border-[#f0ebe4] flex flex-col gap-3${className ? ` ${className}` : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="text-xs text-[#9a9490] font-medium leading-tight">{label}</span>

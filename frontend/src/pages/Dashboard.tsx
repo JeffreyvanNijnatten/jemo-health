@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Settings2, Activity, Ruler, HeartPulse, Brain, Dumbbell, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Settings2, Activity, HeartPulse, Brain, Dumbbell, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Profile, Measurement, GoalMap, UnitSystem } from '../lib/types'
 import { api } from '../lib/api'
 import { ProfileSwitcher } from '../components/ProfileSwitcher'
@@ -37,6 +37,7 @@ const BODY_TYPE_LABEL: Record<number, string> = {
 
 function getGreeting(): string {
   const h = new Date().getHours()
+  if (h < 5) return 'Good night'
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   return 'Good evening'
@@ -339,6 +340,12 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                   <span className="font-medium text-[#222]">{age} yrs</span>
                 </div>
               )}
+              {activeProfile?.height_cm != null && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-[#9a9490]">Height</span>
+                  <span className="font-medium text-[#222]">{formatHeight(activeProfile.height_cm, unitSystem)}</span>
+                </div>
+              )}
               {activityLabel && (
                 <div className="flex items-center gap-2 text-sm">
                   <Activity size={13} className="text-[#9a9490]" />
@@ -508,22 +515,9 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                     : null}
                   deltaGoodDirection="neutral"
                 />
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.06 }}
-                  className="bg-white rounded-2xl p-5 border border-[#f0ebe4] flex flex-col gap-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <Ruler size={13} className="text-[#9a9490]" />
-                    <span className="text-xs text-[#9a9490] font-medium">Height</span>
-                  </div>
-                  <p className="text-3xl font-medium text-[#222] tracking-tight">
-                    {formatHeight(displayed?.height_cm ?? null, unitSystem)}
-                  </p>
-                </motion.div>
                 <MetricCard
-                  index={2}
+                  index={1}
+                  className="sm:col-span-2"
                   label="Resting calories"
                   value={displayed?.resting_calories ?? null}
                   unit=" kcal"
@@ -762,6 +756,7 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                             : null}
                           deltaGoodDirection="up"
                         />
+                        <div />
                         <MetricCard
                           label="Trunk muscle"
                           value={weightValue(displayed?.muscle_trunk_kg ?? null, unitSystem)}
@@ -775,7 +770,6 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                             : null}
                           deltaGoodDirection="up"
                         />
-                        <div />
                         <MetricCard
                           label="Bone mass"
                           value={weightValue(displayed?.bone_kg ?? null, unitSystem)}
