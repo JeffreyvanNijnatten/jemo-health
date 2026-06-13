@@ -66,5 +66,5 @@ export const api = {
     )
   },
 
-  checkAuth: () => fetch('/health', { headers: headers() as HeadersInit }).then(r => r.status),
+  checkAuth: () => fetch('/api/profiles', { headers: headers() as HeadersInit }).then(r => r.status),
 }

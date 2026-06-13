@@ -10,7 +10,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if not APP_PASSWORD:
             return await call_next(request)
 
-        if request.url.path == "/health":
+        # Only protect API endpoints; let the SPA and static files load freely
+        if not request.url.path.startswith("/api/"):
             return await call_next(request)
 
         if request.headers.get("X-Password", "") != APP_PASSWORD:
