@@ -372,7 +372,7 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
                     value={noteValue}
                     onChange={e => setNoteValue(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) saveNote() }}
-                    placeholder="Add a note for this measurement…"
+                    placeholder="Add a note"
                     rows={1}
                     className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-[#e8e2db] bg-white text-[#222] placeholder:text-[#c8c0b8] outline-none focus:border-[#c094e4] resize-none leading-relaxed"
                   />
