@@ -15,6 +15,7 @@ import { bmiRange, bodyFatRange, muscleMassRange, visceralFatRange, metabolicAge
 import { weightValue, weightUnit, formatHeight } from '../lib/units'
 import { getStatusMessage } from '../lib/statusMessages'
 import { bmiBandBoundaries, fatBandBoundaries, fatDistribution, muscleDistribution } from '../lib/references'
+import { computeHealthScore, scoreColor, scoreBgColor } from '../lib/healthScore'
 
 interface Props {
   unitSystem: UnitSystem
@@ -38,10 +39,10 @@ const BODY_TYPE_LABEL: Record<number, string> = {
 function getGreeting(): string {
   const h = new Date().getHours()
   if (h < 1) return 'Good night'
-  if (h < 5) return 'Sleep if important to stay healty!'
+  if (h < 5) return 'Sleep is important to stay healty!'
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
-  if (h < 22) return 'Good afternoon'
+  if (h < 22) return 'Good evening'
   return 'Good night'
 }
 
@@ -112,20 +113,12 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
   const calFirstDayOffset = (() => { const d = new Date(calYear, calMonth, 1).getDay(); return d === 0 ? 6 : d - 1 })()
   const calMonthLabel = new Date(calYear, calMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
-  const overallTrend = (() => {
-    const a = latest
-    const b = sorted.length >= 2 ? sorted[sorted.length - 2] : null
-    if (!a || !b) return null
-    const deltas: number[] = []
-    if (a.fat_total_pct != null && b.fat_total_pct != null && b.fat_total_pct > 0)
-      deltas.push((b.fat_total_pct - a.fat_total_pct) / b.fat_total_pct * 100)
-    if (a.visceral_fat != null && b.visceral_fat != null && b.visceral_fat > 0)
-      deltas.push((b.visceral_fat - a.visceral_fat) / b.visceral_fat * 100)
-    if (a.muscle_total_kg != null && b.muscle_total_kg != null && b.muscle_total_kg > 0)
-      deltas.push((a.muscle_total_kg - b.muscle_total_kg) / b.muscle_total_kg * 100)
-    if (deltas.length === 0) return null
-    return deltas.reduce((s, v) => s + v, 0) / deltas.length
-  })()
+  const prevLatest = sorted.length >= 2 ? sorted[sorted.length - 2] : null
+  const currentHealthScore = latest && activeProfile ? computeHealthScore(latest, activeProfile) : null
+  const prevHealthScore = prevLatest && activeProfile ? computeHealthScore(prevLatest, activeProfile) : null
+  const scoreDelta = currentHealthScore != null && prevHealthScore != null
+    ? currentHealthScore.score - prevHealthScore.score
+    : null
 
   const bmiBands = (() => {
     const { normal, overweight } = bmiBandBoundaries(activeProfile?.ethnicity ?? null)
@@ -314,17 +307,28 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
             <div className="flex-1">
               <p className="text-sm text-[#9a9490] mb-1">{getGreeting()},</p>
-              <div className="flex items-baseline gap-3 mb-4">
-                <h2 className="font-serif text-3xl font-medium text-[#222]">
+              <div className="mb-4">
+                <h2 className="font-serif text-3xl font-medium text-[#222] mb-1">
                   {activeProfile?.name || 'friend'}
                 </h2>
-                {overallTrend != null && Math.abs(overallTrend) >= 0.05 && (
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: overallTrend > 0 ? '#0d9488' : '#be5178' }}
-                  >
-                    {overallTrend > 0 ? '↑' : '↓'} {Math.abs(overallTrend).toFixed(1)}%
-                  </span>
+                {currentHealthScore != null && (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-baseline gap-1 px-2.5 py-0.5 rounded-full"
+                      style={{ backgroundColor: scoreBgColor(currentHealthScore.score) }}
+                    >
+                      <span className="text-sm font-semibold tabular-nums" style={{ color: scoreColor(currentHealthScore.score) }}>
+                        {Math.round(currentHealthScore.score)}
+                      </span>
+                      <span className="text-xs" style={{ color: scoreColor(currentHealthScore.score) }}>/100</span>
+                    </div>
+                    {scoreDelta != null && Math.abs(scoreDelta) >= 0.5 && (
+                      <span className="text-sm font-medium" style={{ color: scoreDelta > 0 ? '#0d9488' : '#be5178' }}>
+                        {scoreDelta > 0 ? '+' : ''}{scoreDelta.toFixed(1)}
+                      </span>
+                    )}
+                    <span className="text-xs text-[#b8b0a8]">health score</span>
+                  </div>
                 )}
               </div>
               {latest && (
