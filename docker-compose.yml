@@ -1,0 +1,15 @@
+services:
+  app:
+    container_name: jemo-health
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-1121}:8000"
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data
+    environment:
+      - APP_PASSWORD=${APP_PASSWORD:-}
+      - PUID=${PUID:-0}
+      - PGID=${PGID:-0}
+    restart: unless-stopped

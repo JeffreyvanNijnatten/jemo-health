@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors — Hume AI palette */
+  --color-ink: #222222;
+  --color-paper: #ffffff;
+  --color-bone: #faf6f1;
+  --color-smoke: #7a7876;
+  --color-iris: #c094e4;
+  --color-blush: #fce0ee;
+  --color-rose-mist: #fdebf7;
+  --color-meringue: #ffe9cf;
+  --color-mint: #daf7ee;
+  --color-seafoam: #cef1e1;
+  --color-amber: #ffb760;
+  --color-slate-plum: #574853;
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root {
+  --gradient-iris: linear-gradient(90deg, #c094e4 0%, #f7bbe6 50%, #ffb760 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #faf6f1;
+  color: #222222;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.015em;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #c094e4 0%, #f7bbe6 50%, #ffb760 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Warm card surface */
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #f0ebe4;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e0d8d0; border-radius: 999px; }
