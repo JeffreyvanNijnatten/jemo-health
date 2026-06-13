@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Settings2, Activity, Ruler, HeartPulse, Brain, Dumbbell, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Profile, Measurement, GoalMap, UnitSystem } from '../lib/types'
@@ -77,6 +77,17 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
   const [calMonth, setCalMonth] = useState(new Date().getMonth())
   const [noteValue, setNoteValue] = useState('')
   const [noteSaving, setNoteSaving] = useState(false)
+  const profileScrollRef = useRef<HTMLDivElement>(null)
+  const [profileFade, setProfileFade] = useState({ left: false, right: false })
+
+  const updateProfileFade = () => {
+    const el = profileScrollRef.current
+    if (!el) return
+    setProfileFade({
+      left: el.scrollLeft > 1,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 1,
+    })
+  }
 
   const activeProfile = profiles.find(p => p.slot_id === activeId) ?? null
   const sorted = [...measurements].sort((a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime())
@@ -190,6 +201,7 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
   }, [])
 
   useEffect(() => { loadProfiles().finally(() => setLoading(false)) }, [])
+  useEffect(() => { setTimeout(updateProfileFade, 0) }, [profiles])
   useEffect(() => { if (activeId) { loadMeasurements(activeId); loadGoals(activeId) } }, [activeId])
   useEffect(() => { setNoteValue(displayed?.note ?? '') }, [displayed?.id])
 
@@ -252,19 +264,33 @@ export function Dashboard({ unitSystem, onUnitChange, timezone, onTimezoneChange
           <h1 className="font-serif text-base font-medium text-[#222] shrink-0">
             {appName} <span className="gradient-text">Health</span>
           </h1>
-          <div className="flex-1 overflow-x-auto">
-            <ProfileSwitcher
-              profiles={profiles}
-              activeId={activeId!}
-              onSwitch={id => {
-                setActiveId(id)
-                localStorage.setItem('jemo_active_profile', String(id))
-                setEditingProfile(null)
-                const p = profiles.find(pr => pr.slot_id === id)
-                if (p && !p.name) setUnnamedProfile(p)
-              }}
-              onEditProfile={p => setEditingProfile(p)}
-            />
+          <div className="relative flex-1 min-w-0">
+            {profileFade.left && (
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-10"
+                style={{ background: 'linear-gradient(to right, #faf6f1, transparent)' }} />
+            )}
+            <div
+              ref={profileScrollRef}
+              onScroll={updateProfileFade}
+              className="overflow-x-auto scrollbar-hide"
+            >
+              <ProfileSwitcher
+                profiles={profiles}
+                activeId={activeId!}
+                onSwitch={id => {
+                  setActiveId(id)
+                  localStorage.setItem('jemo_active_profile', String(id))
+                  setEditingProfile(null)
+                  const p = profiles.find(pr => pr.slot_id === id)
+                  if (p && !p.name) setUnnamedProfile(p)
+                }}
+                onEditProfile={p => setEditingProfile(p)}
+              />
+            </div>
+            {profileFade.right && (
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-10"
+                style={{ background: 'linear-gradient(to left, #faf6f1, transparent)' }} />
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => setShowSettings(true)} className="w-8 h-8 flex items-center justify-center rounded-full text-[#9a9490] hover:text-[#222] transition-colors" title="Settings">
